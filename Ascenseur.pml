@@ -1,15 +1,19 @@
 mtype = {eteint, allume} ; /* etat des boutons */
+mtype = {fermees, ouvertes, refermees} ; /* etat des portes */
 chan EC = [4] of {short, byte} ; /* Canal d'envoi des appels aux étages vers la cabine représentés 
 par un couple {Direction(-1,+1), N° d'étages(0,1 ou 2)} */
 
 chan CE = [0] of {short, byte} ; /* Canal d'envoi des commandes d'extinction des boutons de la cabine vers les étages représentées par un couple {Direction(-1,+1), N° d'étages(0,1 ou 2)} */
 
-/* Déclaration des varaibels et Initialisation */
-byte Pos = 0 ; /* Position de la cabine */
-short Dir = 1 ; /* Direction de déplacement de la cabine : monte (1), descend(-1) */ 
-	
 proctype Cabine() 
 { 
+
+	/* Déclaration des varaibles et Initialisation */
+	byte Pos = 0 ; /* Position de la cabine */
+	short Dir = 1 ; /* Direction de déplacement de la cabine : monte (1), descend(-1) */ 
+	
+	mtype PorteCab = fermees;	
+	
 	mtype B0 = eteint, B1 = eteint, B2 = eteint ; 
 		/* Etat des boutons interne à la cabine pour les étages 0,1 et 2 */
 	mtype BM0 = eteint, BM1 = eteint, BD1 = eteint, BD2 = eteint ; 
@@ -26,7 +30,9 @@ proctype Cabine()
 			(B0==allume || BM0==allume || BD1==allume)) -> Dir=-1 ;} 
 		::atomic{ (Pos==1 && Dir==-1 && 
 			(B2==allume || BD2==allume || BM1==allume)) -> Dir=1 ;}
+			
 		/* Déplacement de la cabine */
+		
 		/* Montée de l'étage 0 vers l'étage 1 */
 		::atomic{(Dir==1 && Pos==0 && (B1==allume || B2==allume || BM0==allume ||
 			BM1==allume || BD1==allume || BD2==allume)) -> Pos=1 ; B1 = eteint ;
@@ -80,6 +86,11 @@ proctype Cabine()
 			/*Demande pour descendre de l'étage 2 */
 			EC? -1,2 ->BD2=allume;
 		}
+		/* OuverturePorteCabine */
+		::atomic{(PorteCab == fermees) -> PorteCab = ouvertes ;}
+		/* FermeturePorteCabine */
+		::atomic{(PorteCab == refermees) -> PorteCab = fermees ;}
+		
 	/*Fin processus cabine */
 	od
 }
@@ -87,6 +98,8 @@ proctype Cabine()
 proctype Etages(){
 	/*Déclaration des variables et initialisations */
 	mtype M0 = eteint, M1 = eteint, D1 = eteint, D2 = eteint;
+	mtype PorteEta = fermees;	
+	
 	do 
 		/*Appuis aléatoire sur les boutons et allumage aléatoire */
 		::atomic{
@@ -119,6 +132,11 @@ proctype Etages(){
 			/* extinction D2 */
 			CE? -1,2 -> D2=eteint;
 		}
+		
+		/* OuverturePorteEtage */
+		::atomic{(PorteEta == fermees) -> PorteEta = ouvertes ;}
+		/*FermeturePorteEtage */
+		::atomic{(PorteEta == ouvertes) -> PorteEta = fermees ;}
 	/* fin processus Etages */
 	od
 }
@@ -129,4 +147,17 @@ init{
 		run Etages();
 	}
 }
-ltl p1{[]( (Pos == 0 && Dir == -1) -> (Pos == 1 U Dir == 1) )}; 
+
+ltl p1{[]( (Cabine:Pos == 0 && Cabine:Dir == -1) -> (Cabine:Pos == 0 U Cabine:Dir == 1))}; 
+/* Les portes aux étages sont toujours fermées sauf si la cabine est positionnée à l’étage où les portes de l’étage sont ouvertes. */
+/*ltl p2{[] (Etages:PorteEta == ouvertes) -> (Cabine:Pos == } */ 
+/* Pendant un déplacement de l’étage i vers l’étage suivant toutes les portes sont fermées ou refermées. */
+ltl p3{true}
+/* Si la cabine se déplace de l’étage i vers l’étage j, c’est qu’il y avait des demandes d’usagers à l’étage j. */
+ltl p4{true}
+/* Toute demande d’un usager à l’étage NE-1 ou dans la cabine pour l’étage NE-1 est inévitablement servie par la cabine. */
+ltl p5{true}
+/* Il y a des demandes usager infiniment souvent à chaque étage et dans toutes les directions possibles. */
+ltl p6{true}
+
+
