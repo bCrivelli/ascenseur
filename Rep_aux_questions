@@ -1,0 +1,61 @@
+FAIT 
+
+1. Compléter le modèle abstrait à 3 étages donné dans l'énoncé en définissant complètement les
+opérations de montée, de descente, d'appel depuis la cabine des étages 1 et 2, de réception de l'état des
+boutons et d'extinction des boutons des étages.
+OK
+
+
+2. Simuler quelques fonctionnements du modèle pour le mettre au point. Augmenter la longueur de la
+simulation progressivement pour augmenter les chances de trouver un blocage. En cas de blocage
+corriger le modèle. Puis dans l'onglet vérification, cocher la clause invalid deadlock et vérifier qu'il
+n'y a pas de blocage dans tous les cas. En cas de blocage corriger le modèle.
+OK
+
+
+3. Simuler le modèle mis au point avec un canal EC de taille 0, 1, 2 et 3. Constatez-vous des différences
+de fonctionnement. Si oui, expliquez les phénomènes observés.
+Oui, il existe des différences de fonctionnement :
+si on met une taille de 0 pour EC, aucun envoie ne pourra etre mis en file d'attente, 
+pour gerer cela des qu'un envoie à lieu, tout de suite une reception à lieu.
+Des que la demande de la cabine à lieu, la cabine traite la demande et se rend à l'endroit demandé.
+Alors que si la taille égale à 1 ou plus, un element (ou plus) peuvent etre placé en file d'attente
+et donc une reception ne suit pas forcement un envoie (un autre envoie peux avoir lieu).
+
+
+
+A FAIRE :
+
+
+4. Modéliser la notion de progrès. Puis, vérifier qu'il n'y a pas de cycle sans progrès. Dans l'onglet
+Vérification, sélectionner la clause liveness en cochant no progress cycle. Si il y a des cycles sans
+progrès, assurez-vous que vous avez correctement défini le progrès et si oui, modifier le modèle pour
+supprimer ces cycles.
+
+5. Définir une variable DirPrec (Direction Précédente) initialisée comme Dir et modifiée dans chaque
+action de changement de direction par l'affectation DirPrec=Dir ; Dir=/* nouvelle valeur */. Exprimer
+la propriété P1 comme un invariant en utilisant cette variable. Faite vérifier cette propriété. Si elle est
+fausse, observer le contre-exemple et corriger le modèle.
+
+
+6. Simuler à nouveau le modèle pour vous assurer qu'il n'y a pas de blocage. Puis dans l'onglet
+vérification, cocher la clause invalid deadlock et vérifier qu'il n'y en a pas de blocage dans tous les
+cas. En cas de blocage corriger le modèle.
+
+
+7. Modéliser la notion de progrès. Puis, vérifier qu'il n'y a pas de cycle sans progrès. Dans l'onglet
+Vérification, sélectionner la clause liveness en cochant no progress cycle.
+
+
+8. Modéliser les propriétés P0 et P1 et vérifier les (voir conseil * de vérif.). Corriger le modèle jusqu'à ce
+qu'elles soient satisfaites. Faite la modélisation et la vérification des propriétés une par une.
+
+9. Raffiner le modèle en modélisant le fonctionnement des portes de la cabine et aux étages. Vérifier
+l'absence de blocage, l'absence de cycles sans progrès, puis les propriétés P0 et P1.
+
+10. Modéliser et vérifier les propriétés P2 à P6 une à une.
+11. Généraliser le modèle à NE étages numérotés de 0 à NE-1. Définissez NE comme une
+constante définie arbitrairement à 6, 7, 8 ou 9. Modéliser alors les boutons par des tableaux B, BM,
+BD, M et D. B représente l'état des boutons dans la cabine, BM et BD l'état des boutons pour monter
+et descendre aux étages tels que les connaît la cabine et M et D l'état des boutons pour monter et
+descendre aux étages.
