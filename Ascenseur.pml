@@ -26,10 +26,8 @@ proctype Cabine()
 		/* Changements de direction */
 		::atomic{ (Pos==0 && Dir==-1) -> Dir=1 ;}
 		::atomic{ (Pos==2 && Dir==1) -> Dir=-1 ;} 
-		::atomic{ (Pos==1 && Dir==1 && 
-			(B0==allume || BM0==allume || BD1==allume)) -> Dir=-1 ;} 
-		::atomic{ (Pos==1 && Dir==-1 && 
-			(B2==allume || BD2==allume || BM1==allume)) -> Dir=1 ;}
+		::atomic{ (Pos==1 && Dir==-1 && (B2==allume || BD2==allume || BM1==allume)) -> Dir=1 ;;B2=eteint;BM1=eteint;BD2=eteint }
+		::atomic{ (Pos==1 && Dir==1 && (B0==allume || BM0==allume || BD1==allume)) -> Dir=-1 ;B0=eteint;BM0=eteint;BD1=eteint} 
 			
 		/* Déplacement de la cabine */
 		
