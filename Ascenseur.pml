@@ -7,7 +7,7 @@ chan CE = [0] of {short, byte} ; /* Canal d'envoi des commandes d'extinction des
 
 proctype Cabine() 
 { 
-
+	assert((Cabine:Pos == 0 || Cabine:Pos == 1 || Cabine:Pos == 2) && (Cabine:Dir == 1 || Cabine:Dir == -1)) 
 	/* Déclaration des varaibles et Initialisation */
 	byte Pos = 0 ; /* Position de la cabine */
 	short Dir = 1 ; /* Direction de déplacement de la cabine : monte (1), descend(-1) */ 
@@ -23,7 +23,7 @@ proctype Cabine()
 	do
 		/* Invariant P0 La cabine est soit à l’étage 0,1 ou 2 et sa direction est soit vers le bas -1, soit vers le haut +1 */
 		/*::assert((Pos == 0 || Pos == 1 || Pos == 2) && (Dir == 1 || Dir == -1)) */
-		
+		/*::assert((Pos == 0 || Pos == 1 || Pos == 2) && (Dir == 1 || Dir == -1)) */
 		/* Invariant P1 */	
 		
 		
