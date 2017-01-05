@@ -3,8 +3,8 @@ mtype = {fermees, ouvertes, refermees} ; /* etat des portes */
 chan EC = [4] of {short, byte} ; /* Canal d'envoi des appels aux étages vers la cabine représentés 
 par un couple {Direction(-1,+1), N° d'étages(0,1 ou 2)} */
 chan CE = [0] of {short, byte} ; /* Canal d'envoi des commandes d'extinction des boutons de la cabine vers les étages représentées par un couple {Direction(-1,+1), N° d'étages(0,1 ou 2)} */
-chan CP = [0] of {short, byte} ; /* Canal d'envoi de l'état des portes dans la cabine vers l'étage par un couple {Etat porte(0,1,2), N° d'étages(0,1 ou 2)} */
-chan EP = [0] of {short, byte} ; 
+chan CP = [0] of {short, byte} ; /* Canal d'envoi de l'état des portes dans la cabine vers l'étage par un couple {Etat porte(0,1,2), Position(0,1 ou 2)} */
+chan EP = [0] of {short, byte} ; /* Canal d'envoi de l'état des portes dans l'étage vers la cabine par un couple {Etat porte(0,1,2), N° d'étages(0,1 ou 2)} */
 proctype Cabine() 
 { 
 	/* Invariant P0 La cabine est soit à l’étage 0,1 ou 2 et sa direction est soit vers le bas -1, soit vers le haut +1 */
