@@ -4,7 +4,7 @@ chan EC = [4] of {short, byte} ; /* Canal d'envoi des appels aux étages vers la
 par un couple {Direction(-1,+1), N° d'étages(0,1 ou 2)} */
 chan CE = [0] of {short, byte} ; /* Canal d'envoi des commandes d'extinction des boutons de la cabine vers les étages représentées par un couple {Direction(-1,+1), N° d'étages(0,1 ou 2)} */
 chan CP = [0] of {short, byte} ; /* Canal d'envoi de l'état des portes dans la cabine vers l'étage par un couple {Etat porte(0,1,2), Position(0,1 ou 2)} */
-chan EP = [0] of {short, byte} ; /* Canal d'envoi de l'état des portes dans l'étage vers la cabine par un couple {Etat porte(0,1,2), N° d'étages(0,1 ou 2)} */
+chan EP = [0] of {short, byte} ; /* Canal d'envoi de l'état des portes de l'étage vers la cabinepar un couple {Etat porte(0,1,2), N° d'étages(0,1 ou 2)} */
 proctype Cabine() 
 { 
 	/* Invariant P0 La cabine est soit à l’étage 0,1 ou 2 et sa direction est soit vers le bas -1, soit vers le haut +1 */
@@ -39,23 +39,23 @@ proctype Cabine()
 		
 		/* Montée de l'étage 0 vers l'étage 1 */
 		::atomic{(Dir==1 && Pos==0 && (B1==allume || B2==allume || BM0==allume ||
-			BM1==allume || BD1==allume || BD2==allume) && PC == refermees) -> Pos=1 ; B1 = eteint;PC = fermees;CA = 1 ;
+			BM1==allume || BD1==allume || BD2==allume) && PC == refermees && CA == 1) -> Pos=1 ; B1 = eteint;PC = fermees; 
 				if	:: BM0==allume -> DirPrec=Dir;BM0=eteint ; CE! Dir, 0 ;
 					:: else DirPrec=Dir;
 				fi } 
 		/* Montée de l'étage 1 vers l'étage 2*/
-		::atomic{(Dir==1 && Pos==1 && (B2==allume || BM1==allume || BD2==allume) && PC == refermees) -> Pos=2 ; B2 = eteint ;PC = fermees ;CA = 1;
+		::atomic{(Dir==1 && Pos==1 && (B2==allume || BM1==allume || BD2==allume) && PC == refermees && CA == 1) -> Pos=2 ; B2 = eteint ;PC = fermees ;
 				if	:: BM1==allume -> DirPrec=Dir;BM1=eteint ; CE! Dir, 1 ;
 					:: else DirPrec=Dir;
 				fi } 
 		/* Descente de l'étage 2 vers l'étage 1*/
 		::atomic{(Dir==-1 && Pos==2 && (B0==allume || B1==allume || BM0==allume ||
-			BM1==allume || BD1==allume || BD2==allume)&& PC == refermees) -> Pos=1 ; B2 = eteint ;PC = fermees ;CA = 1;
+			BM1==allume || BD1==allume || BD2==allume)&& PC == refermees && CA == 1) -> Pos=1 ; B2 = eteint ;PC = fermees ;
 				if	:: BD2==allume -> DirPrec=Dir;BD2=eteint ; CE! Dir, 2 ;
 					:: else DirPrec=Dir;
 				fi } 
 		/* Descente de l'étage 1 vers l'étage 0*/
-		::atomic{(Dir==-1 && Pos==1 && (B0==allume || BM0==allume || BD1==allume)&& PC == refermees) -> Pos=0 ; B0 = eteint ;PC = fermees ;CA = 1;
+		::atomic{(Dir==-1 && Pos==1 && (B0==allume || BM0==allume || BD1==allume)&& PC == refermees && CA == 1) -> Pos=0 ; B0 = eteint ;PC = fermees ;
 				if	:: BD2==allume -> DirPrec=Dir;BD2=eteint ; CE! Dir, 1 ;
 					:: else DirPrec=Dir;
 				fi } 
@@ -89,6 +89,9 @@ proctype Cabine()
 		/*Cabine se ferme, demande fermeture à étage*/
 		::atomic{(PC == ouvertes) -> PC = refermees ;CP!0,Pos}
 		
+		/*Remise en mouvement*/
+		/*La cabine recoit confirmation que l'étage est fermée */
+		::atomic{EP?0,Pos -> CA = 1}
 		
 		
 		
@@ -146,7 +149,7 @@ proctype Etages(){
 		/*FermeturePorteEtage */
 		::atomic{
 		/*Etage reçoit demande de fermeture, se ferme, cabine déjà fermé*/
-			CP?0,0 -> PE0 = fermees ;
+			CP?0,0 -> PE0 = fermees;EP!0,0;
 		}
 			
 		/* ETAGE 1 */
@@ -158,7 +161,7 @@ proctype Etages(){
 		/*FermeturePorteEtage */
 		::atomic{
 		/*Etage reçoit demande de fermeture, se ferme, cabine déjà fermée*/
-			CP?0,1 -> PE1 = fermees ;
+			CP?0,1 -> PE1 = fermees ;EP!0,1;
 		}
 			
 		/* ETAGE 2 */
@@ -170,9 +173,8 @@ proctype Etages(){
 		/*FermeturePorteEtage */
 		::atomic{
 		/*Etage reçoit demande de fermeture, se ferme, cabine déjà fermée*/
-			CP?0,2 -> PE2 = fermees ;
+			CP?0,2 -> PE2 = fermees ;EP!0,2;
 		}			
-			
 			
 			
 		/* fin processus Etages */
@@ -196,7 +198,7 @@ init{
 	)
 	} ;
 
-*/
+
 /* Les portes aux étages sont toujours fermées sauf si la cabine est positionnée à l’étage où les portes de l’étage sont ouvertes. */
 /*ltl p2{[] (
 	(Etages:PE0 == fermees -> Cabine:Pos != 0) || 
@@ -242,7 +244,7 @@ init{
 	[]<> (Cabine:BD1==allume) &&
 	[]<> (Cabine:BD2==allume) 
 	)
-} 
-*/
+}*/
+
 
 
